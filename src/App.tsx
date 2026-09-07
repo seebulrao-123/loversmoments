@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from './supabaseClient';
-import { AuthModal } from './components/AuthModal';
+import { AuthModal } from './AuthModal';
 import { 
   DiaryPage, InteractionMode, DrawingTool, DiarySettings,
   PageBackground, TextItem, PhotoItem, StickerItem, PhotoFrame, StickerCategory

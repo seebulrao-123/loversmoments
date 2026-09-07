@@ -1,0 +1,6 @@
+{
+  "name": "Moments..",
+  "description": "A realistic vintage digital memory diary with aged paper, 3D page turning, custom gradients, drawing, photos, stickers, and calligraphy.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

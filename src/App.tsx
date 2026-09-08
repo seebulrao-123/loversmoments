@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import { AuthModal } from './AuthModal';
-import { BookView } from './BookView';
+import { BookView } from './components/BookView';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);

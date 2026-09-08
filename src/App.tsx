@@ -1,21 +1,36 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import { AuthModal } from './AuthModal';
-import { 
-  DiaryPage, InteractionMode, DrawingTool, DiarySettings,
-  PageBackground, TextItem, PhotoItem, StickerItem, PhotoFrame, StickerCategory
-} from './types';
+import { BookView } from './BookView';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
 
-  // Splash screen timer
+  // Check initial session on load
   useEffect(() => {
-    const timer = setTimeout(() => {
+    async function checkSession() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+      }
       setIsLoading(false);
-    }, 1500);
-    return () => clearTimeout(timer);
+    }
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (isLoading) {
@@ -54,30 +69,38 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#1e293b', color: '#fff', padding: '20px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1>Lovers Moments</h1>
-        <button 
-          onClick={() => setIsAuthModalOpen(true)}
-          style={{ padding: '8px 16px', background: '#ec4899', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
-        >
-          Sign In
-        </button>
-      </header>
+    <div style={{ minHeight: '100vh', backgroundColor: '#1e293b', color: '#fff' }}>
+      {!user ? (
+        <div style={{ padding: '20px' }}>
+          <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h1>Lovers Moments</h1>
+            <button 
+              onClick={() => setIsAuthOpen(true)}
+              style={{ padding: '8px 16px', background: '#ec4899', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}
+            >
+              Sign In
+            </button>
+          </header>
 
-      {/* Main App Content Area */}
-      <main>
-        <p>Aapka application yahan successfully load ho chuka hai!</p>
-      </main>
+          <main>
+            <p>Please sign in to access your digital diary.</p>
+          </main>
+        </div>
+      ) : (
+        <BookView user={user} />
+      )}
 
-<AuthModal
-      isOpen={isAuthOpen}
-      onClose={() => setIsAuthOpen(false)}
-      onLoginSuccess={async () => {
-        setIsAuthOpen(false);
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          setUser(session.user);
-        }
-      }}
-    />
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        onLoginSuccess={async () => {
+          setIsAuthOpen(false);
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) {
+            setUser(session.user);
+          }
+        }}
+      />
+    </div>
+  );
+}

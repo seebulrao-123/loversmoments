@@ -70,11 +70,14 @@ export default function App() {
         <p>Aapka application yahan successfully load ho chuka hai!</p>
       </main>
 
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-        onLoginSuccess={() => setIsAuthModalOpen(false)} 
-      />
-    </div>
-  );
-}
+     <AuthModal
+      isOpen={isAuthOpen}
+      onClose={() => setIsAuthModalOpen(false)}
+      onLoginSuccess={async () => {
+        setIsAuthModalOpen(false);
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+        }
+      }}
+    />

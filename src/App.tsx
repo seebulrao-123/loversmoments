@@ -70,11 +70,11 @@ export default function App() {
         <p>Aapka application yahan successfully load ho chuka hai!</p>
       </main>
 
-     <AuthModal
+<AuthModal
       isOpen={isAuthOpen}
-      onClose={() => setIsAuthModalOpen(false)}
+      onClose={() => setIsAuthOpen(false)}
       onLoginSuccess={async () => {
-        setIsAuthModalOpen(false);
+        setIsAuthOpen(false);
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           setUser(session.user);

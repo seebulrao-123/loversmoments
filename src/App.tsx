@@ -1,25 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import { AuthModal } from './AuthModal';
-import { BookView } from './components/BookView';
+
+// Self-contained BookView component (no separate file import needed)
+function BookView({ user }: { user: any }) {
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: '#1e293b', color: '#fff', padding: '40px', fontFamily: 'sans-serif' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', background: '#0f172a', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+        <h1 style={{ color: '#ec4899', marginBottom: '10px' }}>Lovers Moments Diary</h1>
+        <p style={{ color: '#94a3b8', marginBottom: '20px' }}>Welcome, {user?.email || 'My Love'}! Your digital diary is ready.</p>
+        <div style={{ padding: '20px', background: '#1e293b', borderRadius: '8px', border: '1px solid #334155' }}>
+          <h3>📖 Today's Memory</h3>
+          <p>Start writing your beautiful moments here...</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
 
-  // Check initial session on load
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
     async function checkSession() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
       }
-      setIsLoading(false);
     }
     checkSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
@@ -29,6 +45,7 @@ export default function App() {
     });
 
     return () => {
+      clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
@@ -81,7 +98,6 @@ export default function App() {
               Sign In
             </button>
           </header>
-
           <main>
             <p>Please sign in to access your digital diary.</p>
           </main>
